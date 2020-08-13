@@ -1,7 +1,7 @@
 from flask import Flask, request, Response
-from Email import EMAIL
+from emailapi import EMAIL
 
-class SubItem: 
+class SubmissionItem: 
     id = ""
     username = ""
     email = ""
@@ -79,7 +79,7 @@ class Api:
             return {"message": "no input"}, 400
 
         if (type == 'sub'):
-            item = SubItem(**request.get_json())
+            item = SubmissionItem(**request.get_json())
             self.subEmail.send_email('ryu74@bu.edu', 'sub', item.id)
             self.subEmail.send_email('ryu74@bu.edu', 'man', item.id)
         else:
