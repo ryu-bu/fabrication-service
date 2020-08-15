@@ -1,10 +1,16 @@
 from flask import Flask
+from app import api_bp
+from dotenv import load_dotenv
+from mongoengine import *
 
-def create_app(config_filename):
+load_dotenv()
+
+connect("fab-submission")
+
+
+def create_app():
     app = Flask(__name__)
-    app.config.from_object(config_filename)
-
-    from app import api_bp
+    
     app.register_blueprint(api_bp, url_prefix='/api')
 
     # from Model import db
@@ -13,5 +19,5 @@ def create_app(config_filename):
     return app
 
 if __name__ == "__main__":
-    app = create_app("config")
+    app = create_app()
     app.run(debug=True)

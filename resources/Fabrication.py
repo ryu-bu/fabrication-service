@@ -1,7 +1,7 @@
 from flask_restful import Resource
 from flask import Flask, jsonify, request, Response
-from model.fabricationitem import FabricationItem
-from control.fabricationlifecycle import FabricationControl
+from models.fabricationitem import FabricationItem
+from controllers.fabricationlifecycle import FabricationControl
 
 
 class Fabrication(Resource):
@@ -16,15 +16,17 @@ class Fabrication(Resource):
         return self.jlist
 
     def post(self):
-        if not request.get_json():
+
+        item = request.get_json()
+
+        if not item:
             return {"message": "no input"}, 400
 
-        item = FabricationItem(**request.get_json())
-        self.jlist.append(item.toJson())
+        self.jlist.append(item)
         
-        process = FabricationControl(item.toJson())
-        process.ProcessFabrication('fabAcc')
-        process.ProcessFabrication('mac')
+        process = FabricationControl(item)
+        process.process_fabrication('fabAcc')
+        process.process_fabrication('mac')
 
         return {"message": "success"}, 201
 
@@ -33,13 +35,13 @@ class Fabrication(Resource):
         item = request.get_json()
 
         for record in self.jlist:
-            if record['id'] == item['id']:
+            if record['order_id'] == item['order_id']:
                 for field in item:
                     if record[field] != item[field]:
                         record[field] = item[field]
                         if record[field] == 'completed':
                             process = FabricationControl(record)
-                            process.ProcessFabrication('comp')
+                            process.process_fabrication('comp')
                 
                 return {"message": "update success"}, 201
                     
