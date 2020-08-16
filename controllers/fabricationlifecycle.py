@@ -5,26 +5,38 @@ class FabricationControl:
     def __init__(self, json_data=[]):
         self.json_data = json_data
         self.id = json_data['order_id']
-        self.email_addr = json_data['email']
         self.email = Email()
 
     def process_fabrication(self, command):
+        # send acceptance email to the user
         if command == 'fabAcc':
-            # update sub db command
             subject = "ID: " + str(self.id) + " Accepted"
             content = "Your submission has been accepted."
+
+            # create new record on db
             fabrication = FabricationItem(**self.json_data)
             fabrication.save()
+            email_addr = self.json_data['email']
+
+        # send job notication to machinist
         elif command == 'mac':
-            # send to fab db command
             subject = "New Request ID: " + str(self.id)
             content = "New job has been requested."
-            self.email_addr = 'ryuichi1174@gmail.com'
+            email_addr = 'ryuichi1174@gmail.com'
+
+        # when a record is updated
         else:
-            # update dab db
             subject = "Order ID: " + str(self.id) + " Completed"
             content = "Your order has been completed."
-            fabrication = FabricationItem.objects(order_id=self.id)
+
+            # update db + email logic
+            fabrication = FabricationItem.objects.get(order_id=self.id) # get one record
+            prev_status = fabrication['stage']
             fabrication.update(**self.json_data)
+            cur_item = FabricationItem.objects.get(order_id=self.id)
+
+            if prev_status == cur_item['stage'] or cur_item['stage'] != 'completed': # send completion email only for the first time
+                return
+            email_addr = cur_item['email']
         
-        self.email.send_email(self.email_addr, subject, content)
+        self.email.send_email(email_addr, subject, content)

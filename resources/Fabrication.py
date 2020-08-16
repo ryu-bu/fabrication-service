@@ -13,6 +13,18 @@ class Fabrication(Resource):
         self.jlist = jlist
 
     def get(self):
+        self.jlist = []
+        all_item = FabricationItem.objects()
+        for record in all_item:
+            self.jlist.append({
+                "order_id": record['order_id'],
+                "email": record['email'],
+                "design": record['design'],
+                "cost": record['cost'],
+                "time": record['time'],
+                "machinist": record['machinist'],
+                "stage": record['stage']
+            })
         return self.jlist
 
     def post(self):
@@ -21,8 +33,6 @@ class Fabrication(Resource):
 
         if not item:
             return {"message": "no input"}, 400
-
-        self.jlist.append(item)
         
         process = FabricationControl(item)
         process.process_fabrication('fabAcc')
@@ -34,16 +44,12 @@ class Fabrication(Resource):
 
         item = request.get_json()
 
-        for record in self.jlist:
-            if record['order_id'] == item['order_id']:
-                for field in item:
-                    if record[field] != item[field]:
-                        record[field] = item[field]
-                        if record[field] == 'completed':
-                            process = FabricationControl(record)
-                            process.process_fabrication('comp')
-                
-                return {"message": "update success"}, 201
-                    
-        return {"message": "item not found"}, 404
+        update_fabrication = FabricationItem.objects.get(order_id=item['order_id'])
+        if not update_fabrication:
+            return {"message": "item not found"}, 404
+            
+        process = FabricationControl(item)
+        process.process_fabrication('comp')
+
+        return {"message": "update success"}, 201
 

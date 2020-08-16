@@ -5,7 +5,7 @@ from mongoengine import *
 
 load_dotenv()
 
-connect("fab-submission")
+connect("fab-service")
 
 
 def create_app():
