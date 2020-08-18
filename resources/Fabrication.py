@@ -5,27 +5,12 @@ from controllers.fabricationlifecycle import FabricationControl
 
 
 class Fabrication(Resource):
-    jlist = []
-    # FabAPI = Api
-    # fabEmail = EMAIL()
-
-    def __init__(self, jlist=[]):
-        self.jlist = jlist
 
     def get(self):
-        self.jlist = []
+        
         all_item = FabricationItem.objects()
-        for record in all_item:
-            self.jlist.append({
-                "order_id": record['order_id'],
-                "email": record['email'],
-                "design": record['design'],
-                "cost": record['cost'],
-                "time": record['time'],
-                "machinist": record['machinist'],
-                "stage": record['stage']
-            })
-        return self.jlist
+        jlist = FabricationControl.jsonize_items(all_item)
+        return jlist
 
     def post(self):
 
@@ -34,9 +19,8 @@ class Fabrication(Resource):
         if not item:
             return {"message": "no input"}, 400
         
-        process = FabricationControl(item)
-        process.process_fabrication('fabAcc')
-        process.process_fabrication('mac')
+        FabricationControl.usr_acc(item)
+        FabricationControl.mac_fab(item)
 
         return {"message": "success"}, 201
 
@@ -48,8 +32,7 @@ class Fabrication(Resource):
         if not update_fabrication:
             return {"message": "item not found"}, 404
             
-        process = FabricationControl(item)
-        process.process_fabrication('comp')
+        FabricationControl.usr_comp(item)
 
         return {"message": "update success"}, 201
 

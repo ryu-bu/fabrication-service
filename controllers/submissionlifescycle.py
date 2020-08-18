@@ -9,40 +9,63 @@ class SubmissionControl:
 
     #Step 3 - send the notifications
 
-    def __init__(self, json_data=[]):
-        self.json_data = json_data
-        self.id = json_data['order_id']
-        self.email = Email()
+    def jsonize_items(items):
+        jlist = []
+        for record in items:
+            jlist.append({
+                "order_id": record['order_id'],
+                "email": record['email'],
+                "acceptance": record['acceptance'],
+                "completion": record['completion'],
+                "time": record['time'],
+                "cost": record['cost'],
+                "file": record['file'],
+                "address": record['address']
+            }) # had to recreate this because all_item is not a mapping but string
+        return jlist
 
-    def process_submission(self, command):
-        if command == 'sub':
-            # send to sub db 
-            subject = "Submission Confirmation ID: " + str(self.id)
-            content = "Your record has been submitted successfully and will be reviewed shortly."
+    def usr_sub(json_data): # put json data directly to the method
+        subject = "Submission Confirmation ID: " + str(json_data['order_id'])
+        content = "Your record has been submitted successfully and will be reviewed shortly."
 
-            # create new record on db
-            submission = SubmissionItem(**self.json_data)
-            submission.save()
-            email_addr = self.json_data['email']
+        # create new record on db
+        submission = SubmissionItem(
+            order_id = json_data['order_id'],
+            email = json_data['email'],
+            acceptance = json_data['acceptance'],
+            completion = json_data['completion'],
+            time = json_data['time'],
+            cost = json_data['cost'],
+            file = json_data['file'],
+            address = json_data['address']
+        )
+        submission.save()
+        Email().send_email(json_data['email'], subject, content)
+        
 
-        elif command == 'man':
-            subject = "New Submission ID: " + str(self.id)
-            content = "New record has been submitted."
-            email_addr = 'ryuichi1174@gmail.com'
+    def mgr_sub(json_data):
+        subject = "New Submission ID: " + str(json_data['order_id'])
+        content = "New record has been submitted."
+        email_addr = 'ryuichi1174@gmail.com'
+
+        Email().send_email(email_addr, subject, content)
             
-        elif command == 'fabRej':
-            # update sub db command
-            subject = "ID: " + str(self.id) + " Rejected"
-            content = "Your submission has been rejected."
+    def usr_rej(json_data):
+        # update sub db command
+        subject = "ID: " + str(json_data['order_id']) + " Rejected"
+        content = "Your submission has been rejected."
 
-            # update db + email logic
-            submission = SubmissionItem.objects.get(order_id=self.id) # get one record
-            prev_status = submission['acceptance']
-            submission.update(**self.json_data)
-            cur_item = SubmissionItem.objects.get(order_id=self.id)
+        # update db + email logic
+        submission = SubmissionItem.objects.get(order_id=json_data['order_id']) # get one record
+        prev_status = submission['acceptance']
+        submission.update(
+            order_id = json_data['order_id'],
+            acceptance = json_data['acceptance']
+        )
+        cur_item = SubmissionItem.objects.get(order_id=json_data['order_id'])
 
-            if prev_status == cur_item['acceptance'] or cur_item['acceptance'] != 'rejected': # send rejection email only for the first time
-                return 
-            email_addr = cur_item['email']
+        if prev_status == cur_item['acceptance'] or cur_item['acceptance'] != 'rejected': # send rejection email only for the first time
+            return 
+        email_addr = cur_item['email']
 
-        self.email.send_email(email_addr, subject, content)
+        Email().send_email(email_addr, subject, content)
