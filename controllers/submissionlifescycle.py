@@ -24,48 +24,55 @@ class SubmissionControl:
             }) # had to recreate this because all_item is not a mapping but string
         return jlist
 
-    def usr_sub(json_data): # put json data directly to the method
-        subject = "Submission Confirmation ID: " + str(json_data['order_id'])
+    def usr_sub(order_id, email, acceptance, completion, time, cost, file, address): # put json data directly to the method
+        subject = "Submission Confirmation ID: " + str(order_id)
         content = "Your record has been submitted successfully and will be reviewed shortly."
 
         # create new record on db
         submission = SubmissionItem(
-            order_id = json_data['order_id'],
-            email = json_data['email'],
-            acceptance = json_data['acceptance'],
-            completion = json_data['completion'],
-            time = json_data['time'],
-            cost = json_data['cost'],
-            file = json_data['file'],
-            address = json_data['address']
+            order_id = order_id,
+            email = email,
+            acceptance = acceptance,
+            completion = completion,
+            time = time,
+            cost = cost,
+            file = file,
+            address = address
         )
         submission.save()
-        Email().send_email(json_data['email'], subject, content)
+        Email().send_email(email, subject, content)
         
 
-    def mgr_sub(json_data):
-        subject = "New Submission ID: " + str(json_data['order_id'])
+    def mgr_sub(order_id):
+        subject = "New Submission ID: " + str(order_id)
         content = "New record has been submitted."
         email_addr = 'ryuichi1174@gmail.com'
 
         Email().send_email(email_addr, subject, content)
             
-    def usr_rej(json_data):
+    def usr_rej(order_id, acceptance):
         # update sub db command
-        subject = "ID: " + str(json_data['order_id']) + " Rejected"
+        update_submission = SubmissionItem.objects.get(order_id=order_id)
+        if not update_submission:
+            return {"message": "item not found"}, 404
+
+        subject = "ID: " + str(order_id) + " Rejected"
         content = "Your submission has been rejected."
 
         # update db + email logic
-        submission = SubmissionItem.objects.get(order_id=json_data['order_id']) # get one record
+        submission = SubmissionItem.objects.get(order_id=order_id) # get one record
         prev_status = submission['acceptance']
         submission.update(
-            order_id = json_data['order_id'],
-            acceptance = json_data['acceptance']
+            order_id = order_id,
+            acceptance = acceptance
         )
-        cur_item = SubmissionItem.objects.get(order_id=json_data['order_id'])
+        cur_item = SubmissionItem.objects.get(order_id=order_id)
 
         if prev_status == cur_item['acceptance'] or cur_item['acceptance'] != 'rejected': # send rejection email only for the first time
-            return 
-        email_addr = cur_item['email']
+            pass
+        else:
+            email_addr = cur_item['email']
 
-        Email().send_email(email_addr, subject, content)
+            Email().send_email(email_addr, subject, content)
+
+        return {"message": "update success"}, 201

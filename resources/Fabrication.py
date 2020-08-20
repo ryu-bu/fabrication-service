@@ -7,7 +7,7 @@ from controllers.fabricationlifecycle import FabricationControl
 class Fabrication(Resource):
 
     def get(self):
-        
+
         all_item = FabricationItem.objects()
         jlist = FabricationControl.jsonize_items(all_item)
         return jlist
@@ -19,20 +19,14 @@ class Fabrication(Resource):
         if not item:
             return {"message": "no input"}, 400
         
-        FabricationControl.usr_acc(item)
-        FabricationControl.mac_fab(item)
+        FabricationControl.usr_acc(item['order_id'], item['email'], item['design'], item['cost'], item['time'], item['machinist'], item['stage'])
+        FabricationControl.mac_fab(item['order_id'])
 
         return {"message": "success"}, 201
 
     def put(self):
 
         item = request.get_json()
-
-        update_fabrication = FabricationItem.objects.get(order_id=item['order_id'])
-        if not update_fabrication:
-            return {"message": "item not found"}, 404
-            
-        FabricationControl.usr_comp(item)
-
-        return {"message": "update success"}, 201
+        
+        return FabricationControl.usr_comp(item['order_id'], item['stage'])
 

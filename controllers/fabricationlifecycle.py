@@ -19,48 +19,53 @@ class FabricationControl:
             })
         return jlist
 
-    def usr_acc(json_data):
+    def usr_acc(order_id, email, design, cost, time, machinist, stage):
         # send acceptance email to the user
-        subject = "ID: " + str(json_data['order_id']) + " Accepted"
+        subject = "ID: " + str(order_id) + " Accepted"
         content = "Your submission has been accepted."
 
         # create new record on db
         fabrication = FabricationItem(
-            order_id = json_data['order_id'],
-            email = json_data['email'],
-            design = json_data['design'],
-            cost = json_data['cost'],
-            time = json_data['time'],
-            machinist = json_data['machinist'],
-            stage = json_data['stage']
+            order_id = order_id,
+            email = email,
+            design = design,
+            cost = cost,
+            time = time,
+            machinist = machinist,
+            stage = stage
         )
         fabrication.save()
-        email_addr = json_data['email']
-        Email().send_email(email_addr, subject, content)
+        Email().send_email(email, subject, content)
 
         # send job notication to machinist
-    def mac_fab(json_data):
-        subject = "New Request ID: " + str(json_data['order_id'])
+    def mac_fab(order_id):
+        subject = "New Request ID: " + str(order_id)
         content = "New job has been requested."
         email_addr = 'ryuichi1174@gmail.com'
 
         Email().send_email(email_addr, subject, content)
 
         # when a record is updated
-    def usr_comp(json_data):
-        subject = "Order ID: " + str(json_data['order_id']) + " Completed"
+    def usr_comp(order_id, stage):
+        update_fabrication = FabricationItem.objects.get(order_id=order_id)
+        if not update_fabrication:
+            return {"message": "item not found"}, 404
+
+        subject = "Order ID: " + str(order_id) + " Completed"
         content = "Your order has been completed."
 
         # update db + email logic
-        fabrication = FabricationItem.objects.get(order_id=json_data['order_id']) # get one record
+        fabrication = FabricationItem.objects.get(order_id=order_id) # get one record
         prev_status = fabrication['stage']
         fabrication.update(
-            stage = json_data['stage']
+            stage = stage
         )
-        cur_item = FabricationItem.objects.get(order_id=json_data['order_id'])
+        cur_item = FabricationItem.objects.get(order_id=order_id)
 
         if prev_status == cur_item['stage'] or cur_item['stage'] != 'completed': # send completion email only for the first time
-            return
-        email_addr = cur_item['email']
+            pass
+        else :
+            email_addr = cur_item['email']
+            Email().send_email(email_addr, subject, content)
         
-        Email().send_email(email_addr, subject, content)
+        return {"message": "update success"}, 201

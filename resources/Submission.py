@@ -7,7 +7,7 @@ from models.submissionitem import SubmissionItem
 class Submission(Resource):
 
     def get(self):
-        
+
         all_item = SubmissionItem.objects()
         jlist = SubmissionControl.jsonize_items(all_item)
         return jlist
@@ -23,20 +23,14 @@ class Submission(Resource):
         if not item:
             return {"message": "no input"}
         
-        SubmissionControl.usr_sub(item)
-        SubmissionControl.mgr_sub(item)
+        SubmissionControl.usr_sub(item['order_id'], item['email'], item['acceptance'], item['completion'], item['time'], item['cost'], item['file'], item['address'])
+        SubmissionControl.mgr_sub(item['order_id'])
 
         return {"message": "success"}, 201
 
     def put(self):
         # db put function
         item = request.get_json()
-
-        update_submission = SubmissionItem.objects.get(order_id=item['order_id'])
-        if not update_submission:
-            return {"message": "item not found"}, 404
-
-        SubmissionControl.usr_rej(item)
     
-        return {"message": "update success"}, 201
+        return SubmissionControl.usr_rej(item['order_id'], item['acceptance'])
 
