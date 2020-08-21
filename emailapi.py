@@ -1,12 +1,9 @@
 import smtplib, ssl
 import os
-from dotenv import load_dotenv
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-load_dotenv()
-
-class EMAIL:
+class Email:
 
     def __init__(self):
         self.sender = os.getenv('SENDER')
