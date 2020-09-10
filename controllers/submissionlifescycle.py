@@ -40,15 +40,15 @@ class SubmissionControl:
             address = address
         )
         submission.save()
-        Email().send_email(email, subject, content)
-        
+        # Email().send_email(email, subject, content)
+
 
     def mgr_sub(order_id):
         subject = "New Submission ID: " + str(order_id)
         content = "New record has been submitted."
         email_addr = 'ryuichi1174@gmail.com'
 
-        Email().send_email(email_addr, subject, content)
+        # Email().send_email(email_addr, subject, content)
             
     def usr_rej(order_id, acceptance):
         # update sub db command
@@ -73,6 +73,6 @@ class SubmissionControl:
         else:
             email_addr = cur_item['email']
 
-            Email().send_email(email_addr, subject, content)
+            # Email().send_email(email_addr, subject, content)
 
         return {"message": "update success"}, 201
