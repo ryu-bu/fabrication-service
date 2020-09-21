@@ -9,6 +9,21 @@ class SubmissionControl:
 
     #Step 3 - send the notifications
 
+
+    def jsonize_item(record):
+        jitem = {
+            "order_id": record['order_id'],
+            "email": record['email'],
+            "acceptance": record['acceptance'],
+            "completion": record['completion'],
+            "time": record['time'],
+            "cost": record['cost'],
+            "file": record['file'],
+            "address": record['address']
+        }
+
+        return jitem
+
     def jsonize_items(items):
         jlist = []
         for record in items:
@@ -76,3 +91,15 @@ class SubmissionControl:
             # Email().send_email(email_addr, subject, content)
 
         return {"message": "update success"}, 201
+
+    def find_item(order_id):
+        sub_record = SubmissionItem.objects.get(order_id=order_id)
+        print(sub_record)
+
+        return sub_record
+
+    def delete_item(order_id):
+        item = SubmissionItem.objects.get(order_id=order_id)
+        item.delete()
+
+        return {"message": "deletion success"}, 200

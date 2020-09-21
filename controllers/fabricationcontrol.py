@@ -87,3 +87,9 @@ class FabricationControl:
         print(fab_record)
 
         return fab_record
+
+    def delete_item(order_id):
+        item = FabricationItem.objects.get(order_id=order_id)
+        item.delete()
+
+        return {"message": "deletion success"}, 200

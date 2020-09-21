@@ -1,12 +1,17 @@
 from flask_restful import Resource
 from flask import Flask, jsonify, request, Response
 from models.fabricationitem import FabricationItem
-from controllers.fabricationlifecycle import FabricationControl
+from controllers.fabricationcontrol import FabricationControl
 from models.submissionitem import SubmissionItem
-from controllers.submissionlifescycle import SubmissionControl
+from controllers.submissioncontrol import SubmissionControl
+from controllers.usercontrol import UserControl
+from flask_jwt_extended import jwt_required
 
 
 class User(Resource):
+
+    # requires authentication
+    @jwt_required
 
     def get(self):
         sub_item = SubmissionItem.objects()
@@ -16,18 +21,10 @@ class User(Resource):
 
     def post(self):
 
-        item = request.get_json()
-
-        if not item:
-            return {"message": "no input"}, 400
-        
-        FabricationControl.usr_acc(item['order_id'], item['email'], item['design'], item['cost'], item['time'], item['machinist'], item['stage'])
-        FabricationControl.mac_fab(item['order_id'])
-
-        return {"message": "success"}, 201
+        body = request.get_json()
+        return UserControl.gen_user(body)
 
     def put(self):
 
-        item = request.get_json()
-        
-        return FabricationControl.usr_comp(item['order_id'], item['stage'])
+        body = request.get_json()
+        return UserControl.update_user(body)
