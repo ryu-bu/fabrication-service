@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask_restful import Api
-from resources.submission import Submit, Submission
-from resources.fabrication import Fabrication
+from resources.Submission import Submit, Submission
+from resources.Fabrication import Fabrication
 from resources.user import User
 from resources.loginapi import LoginAPI
 
