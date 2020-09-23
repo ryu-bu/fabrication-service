@@ -2,6 +2,18 @@ from emailapi import Email
 from models.fabricationitem import FabricationItem
 
 class FabricationControl:
+    def jsonize_item(record):
+        jitem = {
+            "order_id": record['order_id'],
+            "email": record['email'],
+            "design": record['design'],
+            "cost": record['cost'],
+            "time": record['time'],
+            "machinist": record['machinist'],
+            "stage": record['stage']
+        }
+
+        return jitem
 
     def jsonize_items(items):
 
@@ -35,7 +47,7 @@ class FabricationControl:
             stage = stage
         )
         fabrication.save()
-        Email().send_email(email, subject, content)
+        # Email().send_email(email, subject, content)
 
         # send job notication to machinist
     def mac_fab(order_id):
@@ -43,7 +55,7 @@ class FabricationControl:
         content = "New job has been requested."
         email_addr = 'ryuichi1174@gmail.com'
 
-        Email().send_email(email_addr, subject, content)
+        # Email().send_email(email_addr, subject, content)
 
         # when a record is updated
     def usr_comp(order_id, stage):
@@ -66,6 +78,18 @@ class FabricationControl:
             pass
         else :
             email_addr = cur_item['email']
-            Email().send_email(email_addr, subject, content)
+            # Email().send_email(email_addr, subject, content)
         
         return {"message": "update success"}, 201
+
+    def find_item(order_id):
+        fab_record = FabricationItem.objects.get(order_id=order_id)
+        print(fab_record)
+
+        return fab_record
+
+    def delete_item(order_id):
+        item = FabricationItem.objects.get(order_id=order_id)
+        item.delete()
+
+        return {"message": "deletion success"}, 200

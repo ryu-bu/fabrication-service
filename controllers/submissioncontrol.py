@@ -9,6 +9,21 @@ class SubmissionControl:
 
     #Step 3 - send the notifications
 
+
+    def jsonize_item(record):
+        jitem = {
+            "order_id": record['order_id'],
+            "email": record['email'],
+            "acceptance": record['acceptance'],
+            "completion": record['completion'],
+            "time": record['time'],
+            "cost": record['cost'],
+            "file": record['file'],
+            "address": record['address']
+        }
+
+        return jitem
+
     def jsonize_items(items):
         jlist = []
         for record in items:
@@ -40,15 +55,15 @@ class SubmissionControl:
             address = address
         )
         submission.save()
-        Email().send_email(email, subject, content)
-        
+        # Email().send_email(email, subject, content)
+
 
     def mgr_sub(order_id):
         subject = "New Submission ID: " + str(order_id)
         content = "New record has been submitted."
         email_addr = 'ryuichi1174@gmail.com'
 
-        Email().send_email(email_addr, subject, content)
+        # Email().send_email(email_addr, subject, content)
             
     def usr_rej(order_id, acceptance):
         # update sub db command
@@ -73,6 +88,18 @@ class SubmissionControl:
         else:
             email_addr = cur_item['email']
 
-            Email().send_email(email_addr, subject, content)
+            # Email().send_email(email_addr, subject, content)
 
         return {"message": "update success"}, 201
+
+    def find_item(order_id):
+        sub_record = SubmissionItem.objects.get(order_id=order_id)
+        print(sub_record)
+
+        return sub_record
+
+    def delete_item(order_id):
+        item = SubmissionItem.objects.get(order_id=order_id)
+        item.delete()
+
+        return {"message": "deletion success"}, 200
