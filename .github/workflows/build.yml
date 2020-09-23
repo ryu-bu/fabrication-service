@@ -28,12 +28,9 @@
 # End Boilerplate
 
 on:
-  pull_request:
-    branches:
-      - master
   push:
     branches:
-      - feat/deployment
+      - master
 
 name: Build Fabrication-Service, upload to ECR, and then deploy to EC2 Instance
 
