@@ -8,7 +8,18 @@ class UserControl:
         user = UserItem(
             email = body['email'],
             password = body['password'],
-            role = body['role']
+            role = 'machinist'
+        )
+        user.hash_password()
+        user.save()
+
+        return {'id': str(user.id)}, 200
+    
+    def gen_manager(body):
+        user = UserItem(
+            email = body['email'],
+            password = body['password'],
+            role = 'manager'
         )
         user.hash_password()
         user.save()
@@ -22,7 +33,7 @@ class UserControl:
         if not authorized:
             return {'message': 'email or password invalid'}, 401
 
-        expires = datetime.timedelta(minutes=20)
+        expires = datetime.timedelta(minutes=10)
         access_token = create_access_token(identity=str(user.id), expires_delta=expires)
         return {'token': access_token}, 200
 
@@ -33,3 +44,7 @@ class UserControl:
             role = body['role']
         )
         return {"message": "update success"}, 201
+
+    def get_role(id):
+        user = UserItem.objects.get(id=id)
+        return user.role 

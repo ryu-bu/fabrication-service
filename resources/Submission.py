@@ -1,7 +1,7 @@
 from flask_restful import Resource
 from flask import Flask, jsonify, request, Response
 from controllers.submissioncontrol import SubmissionControl
-
+from flask_jwt_extended import jwt_required
 
 class Submit(Resource):
 
@@ -24,6 +24,7 @@ class Submit(Resource):
     
 class Submission(Resource):
 
+    @jwt_required
     def get(self):
 
         arg = request.args
@@ -33,6 +34,7 @@ class Submission(Resource):
 
         return sub
 
+    @jwt_required
     def post(self):
         # db post function
         #STEP 1 - PARSE ALL THE DATA FROM JSON TO PYTHON VARIABLES
@@ -49,12 +51,14 @@ class Submission(Resource):
 
         return {"message": "success"}, 201
 
+    @jwt_required
     def put(self):
         # db put function
         item = request.get_json()
     
         return SubmissionControl.usr_rej(item['order_id'], item['acceptance'])
 
+    @jwt_required
     def delete(self):
 
         item = request.get_json()

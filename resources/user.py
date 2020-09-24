@@ -5,7 +5,7 @@ from controllers.fabricationcontrol import FabricationControl
 from models.submissionitem import SubmissionItem
 from controllers.submissioncontrol import SubmissionControl
 from controllers.usercontrol import UserControl
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 
 class User(Resource):
@@ -14,9 +14,15 @@ class User(Resource):
     @jwt_required
 
     def get(self):
-        sub_item = SubmissionItem.objects()
+        role = UserControl.get_role(get_jwt_identity())
+        jlist = []
+        if role == 'manager':
+            sub_item = SubmissionItem.objects()
+            jlist = SubmissionControl.jsonize_items(sub_item)
+
         fab_item = FabricationItem.objects()
-        jlist = SubmissionControl.jsonize_items(sub_item) + FabricationControl.jsonize_items(fab_item)
+        jlist = jlist + FabricationControl.jsonize_items(fab_item)
+
         return jlist
 
     def post(self):
