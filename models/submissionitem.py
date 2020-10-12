@@ -13,6 +13,7 @@ class SubmissionItem(Document):
     cost = IntField(required=True)
     file = StringField(required=True)
     address = StringField(required=True)
+    message = StringField()
 
     def toJson(self):
         in_json = {
@@ -25,6 +26,7 @@ class SubmissionItem(Document):
             "cost": self.cost,
             "file": self.file,
             "address": self.addr,
+            "message": self.message
         }
 
         return in_json

@@ -35,7 +35,7 @@ class UserControl:
 
         expires = datetime.timedelta(minutes=10)
         access_token = create_access_token(identity=str(user.id), expires_delta=expires)
-        return {'token': access_token}, 200
+        return {'token': access_token, 'user': user.email, 'role': user.role}, 200
 
     def update_user(body):
         user = UserItem.objects.get(email=body['email'])
@@ -48,3 +48,7 @@ class UserControl:
     def get_role(id):
         user = UserItem.objects.get(id=id)
         return user.role 
+
+    def get_email(id):
+        user = UserItem.objects.get(id=id)
+        return user.email

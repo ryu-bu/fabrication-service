@@ -10,7 +10,8 @@ class FabricationControl:
             "cost": record['cost'],
             "time": record['time'],
             "machinist": record['machinist'],
-            "stage": record['stage']
+            "stage": record['stage'],
+            "message": record['message']
         }
 
         return jitem
@@ -27,7 +28,8 @@ class FabricationControl:
                 "cost": record['cost'],
                 "time": record['time'],
                 "machinist": record['machinist'],
-                "stage": record['stage']
+                "stage": record['stage'],
+                "message": record['message']
             })
         return jlist
 
@@ -75,6 +77,31 @@ class FabricationControl:
         cur_item = FabricationItem.objects.get(order_id=order_id)
 
         if prev_status == cur_item['stage'] or cur_item['stage'] != 'completed': # send completion email only for the first time
+            pass
+        else :
+            email_addr = cur_item['email']
+            # Email().send_email(email_addr, subject, content)
+        
+        return {"message": "update success"}, 201
+
+    def usr_failed(order_id, stage, message):
+        update_fabrication = FabricationItem.objects.get(order_id=order_id)
+        if not update_fabrication:
+            return {"message": "item not found"}, 404
+
+        subject = "Order ID: " + str(order_id) + " Failed"
+        content = "Your order has been failed.\n\n Error message:\n" + message
+
+        # update db + email logic
+        fabrication = FabricationItem.objects.get(order_id=order_id) # get one record
+        prev_status = fabrication['stage']
+        fabrication.update(
+            stage = stage,
+            message = message
+        )
+        cur_item = FabricationItem.objects.get(order_id=order_id)
+
+        if prev_status == cur_item['stage'] or cur_item['stage'] != 'failed': # send completion email only for the first time
             pass
         else :
             email_addr = cur_item['email']

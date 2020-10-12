@@ -34,7 +34,10 @@ class Fabrication(Resource):
 
         item = request.get_json()
         
-        return FabricationControl.usr_comp(item['order_id'], item['stage'])
+        if 'message' in item:
+            return FabricationControl.usr_failed(item['order_id'], item['stage'], item['message'])
+        else:
+            return FabricationControl.usr_comp(item['order_id'], item['stage'])
 
     @jwt_required
     def delete(self):

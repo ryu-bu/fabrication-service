@@ -11,6 +11,7 @@ class FabricationItem(Document):
     time = IntField(required=True)
     machinist = StringField(required=True)
     stage = StringField(required=True)
+    message = StringField()
     date = DateTimeField(default=datetime.now(timezone('US/Eastern')))
 
     def toJson(self):
@@ -22,6 +23,7 @@ class FabricationItem(Document):
             'time': self.time,
             'machinist': self.machinist,
             'stage': self.stage,
+            'message': self.message,
             'date': self.date
         }
 

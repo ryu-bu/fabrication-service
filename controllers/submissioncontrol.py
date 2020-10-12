@@ -65,21 +65,22 @@ class SubmissionControl:
 
         # Email().send_email(email_addr, subject, content)
             
-    def usr_rej(order_id, acceptance):
+    def usr_rej(order_id, acceptance, message):
         # update sub db command
         update_submission = SubmissionItem.objects.get(order_id=order_id)
         if not update_submission:
             return {"message": "item not found"}, 404
 
         subject = "ID: " + str(order_id) + " Rejected"
-        content = "Your submission has been rejected."
+        content = "Your submission has been rejected. Reason: " + message
 
         # update db + email logic
         submission = SubmissionItem.objects.get(order_id=order_id) # get one record
         prev_status = submission['acceptance']
         submission.update(
             order_id = order_id,
-            acceptance = acceptance
+            acceptance = acceptance,
+            message = message
         )
         cur_item = SubmissionItem.objects.get(order_id=order_id)
 
@@ -89,6 +90,18 @@ class SubmissionControl:
             email_addr = cur_item['email']
 
             # Email().send_email(email_addr, subject, content)
+
+        return {"message": "update success"}, 201
+    
+    def item_back(order_id, acceptance):
+        update_submission = SubmissionItem.objects.get(order_id=order_id)
+        if not update_submission:
+            return {"message": "item not found"}, 404
+        
+        update_submission.update(
+            order_id = order_id,
+            acceptance = acceptance
+        )
 
         return {"message": "update success"}, 201
 
